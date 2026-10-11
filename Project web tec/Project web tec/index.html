@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AQI Application</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      max-width: 1000px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .left, .right {
+      padding: 30px;
+    }
+
+    .left {
+      border-right: 1px solid #ddd;
+    }
+
+    .logo {
+      display: block;
+      margin: 0 auto 20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid #333;
+      object-fit: cover;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    form label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    form input, form select, form textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .gender-options {
+      display: flex;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    .checkbox {
+      margin-top: 10px;
+    }
+
+    .error {
+      font-size: 12px;
+      color: red;
+    }
+
+    form input[type="submit"] {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .login-section {
+      background-color: #f9fafb;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .login-section input[type="submit"] {
+      background-color: #28a745;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    tbody td {
+      filter: blur(5px);
+      transition: filter 0.3s;
+    }
+
+    tbody td:hover {
+      filter: none;
+    }
+
+    @media (max-width: 768px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
+
+      .left {
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+      }
+    }
+  </style>
+
+  <script>
+    function validateForm(event) {
+      event.preventDefault();
+      let valid = true;
+
+      const name = document.getElementById("uname").value.trim();
+      const email = document.getElementById("umail").value.trim();
+      const password = document.getElementById("upass").value.trim();
+      const confirmPassword = document.getElementById("confirmpass").value.trim();
+      const dob = document.getElementById("dob").value;
+      const country = document.getElementById("country").value;
+      const color = document.querySelector("select[name='color']").value;
+      const opinion = document.querySelector("textarea[name='opinion']").value.trim();
+      const agree = document.querySelector("input[name='tc']").checked;
+      const male = document.getElementById("Male").checked;
+      const female = document.getElementById("Female").checked;
+
+      function setError(id, message) {
+        document.getElementById(id).innerText = message;
+        valid = false;
+      }
+
+      document.querySelectorAll('.error').forEach(el => el.innerText = '');
+
+      if (!name) setError("nameError", "Name is required.");
+      else if (!/^[A-Za-z\s'-]{2,50}$/.test(name)) setError("nameError", "Invalid name.");
+
+      if (!email) setError("emailError", "Email is required.");
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) setError("emailError", "Invalid email.");
+
+      if (!password) setError("passError", "Password is required.");
+      else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(password)) 
+        setError("passError", "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.");
+
+      if (!confirmPassword) setError("confirmPassError", "Please confirm your password.");
+      else if (confirmPassword !== password) setError("confirmPassError", "Passwords do not match.");
+
+      if (!dob) setError("ageError", "DOB required.");
+      else {
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+        if (age < 18) setError("ageError", "Must be at least 18.");
+      }
+
+      if (!country) setError("countryError", "Country required.");
+      if (!male && !female) setError("genderError", "Select gender.");
+      if (!color) setError("colorError", "Color required.");
+      if (!opinion) setError("opinionError", "Opinion required.");
+      if (!agree) setError("termsError", "You must agree.");
+
+      if (valid) {
+        alert("Form submitted successfully!");
+        document.querySelector("form").submit();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('showPassToggle').addEventListener('change', function () {
+        const passFields = [document.getElementById('upass'), document.getElementById('confirmpass')];
+        passFields.forEach(field => {
+          field.type = this.checked ? 'text' : 'password';
+        });
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Left Section: Registration -->
+    <div class="left">
+      <img src="aqi.jpg" alt="Logo" class="logo">
+      <h2>Register</h2>
+      <form action="process.php" method="post" onsubmit="validateForm(event)">
+        <label for="uname">Full Name</label>
+        <input type="text" id="uname" name="uname" placeholder="Enter full name">
+        <span id="nameError" class="error"></span>
+
+        <label for="umail">Email</label>
+        <input type="email" id="umail" name="umail" placeholder="Enter email">
+        <span id="emailError" class="error"></span>
+
+        <label for="upass">Password</label>
+        <input type="password" id="upass" name="upass" placeholder="Enter password">
+        <span id="passError" class="error"></span>
+
+        <label for="confirmpass">Confirm Password</label>
+        <input type="password" id="confirmpass" name="confirmpass" placeholder="Re-enter password">
+        <span id="confirmPassError" class="error"></span>
+
+        <label>
+          <input type="checkbox" id="showPassToggle"> Show Passwords
+        </label>
+
+        <label for="dob">Date of Birth</label>
+        <input type="date" id="dob" name="dob">
+        <span id="ageError" class="error"></span>
+
+        <label for="country">Country</label>
+        <select id="country" name="country">
+          <option value="" disabled selected>Select your country</option>
+          <option value="Bangladesh">Bangladesh</option>
+          <option value="India">India</option>
+          <option value="China">China</option>
+          <option value="Australia">Australia</option>
+          <option value="Pakistan">Pakistan</option>
+          <option value="Indonesia">Indonesia</option>
+          <option value="UK">UK</option>
+          <option value="Germany">Germany</option>
+          <option value="Italy">Italy</option>
+          <option value="USA">USA</option>
+          <option value="Mexico">Mexico</option>
+          <option value="Turkey">Turkey</option>
+          <option value="Canada">Canada</option>
+        </select>
+        <span id="countryError" class="error"></span>
+
+        <label>Gender</label>
+        <div class="gender-options">
+          <label><input type="radio" name="gen" id="Male" value="Male"> Male</label>
+          <label><input type="radio" name="gen" id="Female" value="Female"> Female</label>
+        </div>
+        <span id="genderError" class="error"></span>
+
+        <label for="color">Favorite Color</label>
+        <select name="color">
+          <option value="" disabled selected>Select color</option>
+          <option value="White">White</option>
+          <option value="Black">Black</option>
+          <option value="Red">Red</option>
+          <option value="Green">Green</option>
+          <option value="Yellow">Yellow</option>
+          <option value="Blue">Blue</option>
+          <option value="Purple">Purple</option>
+          <option value="Brown">Brown</option>
+          <option value="Grey">Grey</option>
+        </select>
+        <span id="colorError" class="error"></span>
+
+        <label>Opinion</label>
+        <textarea name="opinion" rows="3" placeholder="Share your thoughts..."></textarea>
+        <span id="opinionError" class="error"></span>
+
+        <div class="checkbox">
+          <input type="checkbox" name="tc" value="Agree"> I agree to the
+          <a href="https://www.example.com" target="_blank">Terms and Conditions</a>
+          <br>
+          <span id="termsError" class="error"></span>
+        </div>
+
+        <input type="submit" value="Submit">
+      </form>
+    </div>
+
+    <!-- Right Section: Login & AQI Table -->
+    <div class="right">
+      <div class="login-section">
+        <h2>Login</h2>
+        <form action="loginprocess.php" method="post">
+          <label for="login_uname">Email</label>
+          <input type="text" id="login_uname" name="uname" placeholder="Enter your email">
+
+          <label for="login_upass">Password</label>
+          <input type="password" id="login_upass" name="upass" placeholder="Enter your password">
+
+          <input type="submit" value="Login">
+        </form>
+      </div>
+
+      <h2>AQI Table</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>City</th>
+            <th>AQI</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Paris</td><td>43</td></tr>
+          <tr><td>Delhi</td><td>149</td></tr>
+          <tr><td>Dhaka</td><td>60</td></tr>
+          <tr><td>New York</td><td>71</td></tr>
+          <tr><td>London</td><td>58</td></tr>
+          <tr><td>Beijing</td><td>135</td></tr>
+          <tr><td>Tokyo</td><td>50</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
